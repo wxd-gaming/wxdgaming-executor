@@ -38,10 +38,15 @@ public abstract class ExecutorEvent extends ExecutorJob implements IExecutorQueu
     @Override public void run() {
         try {
             ExecutorMonitor.put(this);
+            if (this.getThreadContext() != null) {
+                ThreadContext.context().putAll(this.getThreadContext());
+            }
             onEvent();
         } catch (Throwable throwable) {
             log.error("{}", getStack(), throwable);
         } finally {
+            this.threadContext = null;
+            ThreadContext.cleanup();
             ExecutorMonitor.release();
             runAfter();
         }

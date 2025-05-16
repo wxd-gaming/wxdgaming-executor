@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class ExecutorJob implements Runnable {
 
-    /** 用来记录，任务是在那一段代码new出来的 */
-    private final String stack;
+    protected final String stack;
+    @Getter(AccessLevel.PROTECTED) protected ThreadContext threadContext;
     @Getter(AccessLevel.PROTECTED) private final Runnable runnable;
 
     public ExecutorJob(Runnable runnable) {
@@ -23,10 +23,15 @@ class ExecutorJob implements Runnable {
     @Override public void run() {
         try {
             ExecutorMonitor.put(this);
+            if (this.getThreadContext() != null) {
+                ThreadContext.context().putAll(this.getThreadContext());
+            }
             runnable.run();
         } catch (Throwable throwable) {
             log.error("{}", stack, throwable);
         } finally {
+            this.threadContext = null;
+            ThreadContext.cleanup();
             runAfter();
             ExecutorMonitor.release();
         }

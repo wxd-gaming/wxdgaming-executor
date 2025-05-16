@@ -16,7 +16,7 @@ import java.util.Map;
 @Getter
 public class ThreadContext extends HashMap<String, Object> {
 
-    private static final ThreadLocal<ThreadContext> local = new InheritableThreadLocal<>();
+    private static final ThreadLocal<ThreadContext> local = new ThreadLocal<>();
 
     /** 获取参数 */
     public static <T> T context(final Class<T> clazz) {
@@ -24,7 +24,7 @@ public class ThreadContext extends HashMap<String, Object> {
     }
 
     /** 获取参数 */
-    public static <T> T context(final Object name) {
+    public static <T> T context(final String name) {
         return (T) context().get(name);
     }
 
